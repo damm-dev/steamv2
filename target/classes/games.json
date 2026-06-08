@@ -1,0 +1,92 @@
+[
+  {
+    "id": 1,
+    "name": "Counter-Strike 2",
+    "genres": ["Action", "FPS", "Shooter", "Multiplayer"],
+    "image": "CounterStrike.jpg"
+  },
+  {
+    "id": 2,
+    "name": "Dota 2",
+    "genres": ["MOBA", "Strategy", "Multiplayer", "Free to Play"],
+    "image": "Dota2.jpg"
+  },
+  {
+    "id": 3,
+    "name": "Cyberpunk 2077",
+    "genres": ["RPG", "Sci-Fi", "Open World", "Singleplayer"],
+    "image": "Cyberpunk2077.jpg"
+  },
+  {
+    "id": 4,
+    "name": "The Witcher 3: Wild Hunt",
+    "genres": ["RPG", "Fantasy", "Open World", "Singleplayer"],
+    "image": "Witcher3.jpg"
+  },
+  {
+    "id": 5,
+    "name": "Portal 2",
+    "genres": ["Puzzle", "Co-op", "Sci-Fi", "Singleplayer"],
+    "image": "Portal2.jpg"
+  },
+  {
+    "id": 6,
+    "name": "Hades",
+    "genres": ["Rogue-like", "Action", "Indie", "Singleplayer"],
+    "image": "Hades.jpg"
+  },
+  {
+    "id": 7,
+    "name": "Elden Ring",
+    "genres": ["RPG", "Action", "Dark Fantasy", "Difficult"],
+    "image": "EldenRing.jpg"
+  },
+  {
+    "id": 8,
+    "name": "Terraria",
+    "genres": ["Sandbox", "Survival", "Adventure", "Co-op"],
+    "image": "Terraria.jpg"
+  },
+  {
+    "id": 9,
+    "name": "Minecraft",
+    "genres": ["Sandbox", "Survival", "Adventure", "Multiplayer"],
+    "image": "Minecraft.jpg"
+  },
+  {
+    "id": 10,
+    "name": "Left 4 Dead 2",
+    "genres": ["Action", "FPS", "Zombie", "Co-op"],
+    "image": "Left4Dead2.jpg"
+  },
+  {
+    "id": 11,
+    "name": "Stardew Valley",
+    "genres": ["Simulation", "Farming", "Co-op", "Relaxing"],
+    "image": "StardewValley.jpg"
+  },
+  {
+    "id": 12,
+    "name": "Grand Theft Auto V",
+    "genres": ["Action", "Open World", "Multiplayer", "Singleplayer"],
+    "image": "GTAV.jpg"
+  },
+  {
+    "id": 13,
+    "name": "Apex Legends",
+    "genres": ["Action", "FPS", "Battle Royale", "Multiplayer"],
+    "image": "ApexLegends.jpg"
+  },
+  {
+    "id": 14,
+    "name": "Baldur's Gate 3",
+    "genres": ["RPG", "Turn-Based", "Fantasy", "Co-op"],
+    "image": "BaldursGate3.jpg"
+  },
+  {
+    "id": 15,
+    "name": "Slay the Spire",
+    "genres": ["Card Game", "Rogue-like", "Strategy", "Singleplayer"],
+    "image": "SlayTheSpire.jpg"
+  }
+]
