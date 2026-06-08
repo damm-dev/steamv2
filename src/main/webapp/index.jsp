@@ -17,7 +17,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SteamV2 - Sugerencias con Union-Find</title>
+    <title>Steam Berde - Sugerencias con Union-Find</title>
     <!-- Fuente premium Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,12 +33,12 @@
         <div class="container header-content">
             <div class="logo" style="display: flex; align-items: center; gap: 20px;">
                 <div>
-                    <span class="highlight-cyan">STEAM</span><span class="highlight-blue">V2</span>
+                    <span class="highlight-cyan">STEAM</span><span class="highlight-blue">BERDE</span>
                 </div>
                 <% if (username != null) { %>
                     <form action="${pageContext.request.contextPath}/recommendations" method="GET" style="display: flex; align-items: center; margin: 0 15px;">
-                        <input type="text" name="searchQuery" placeholder="Buscar juego en el catálogo..." value="<%= request.getAttribute("searchQuery") != null ? request.getAttribute("searchQuery") : "" %>" style="background-color: #17202d; border: 1px solid #3b4e65; color: #fff; padding: 8px 15px; border-radius: 4px 0 0 4px; outline: none; font-size: 14px; width: 230px; font-family: 'Outfit', sans-serif;">
-                        <button type="submit" style="background-color: #66c0f4; border: none; color: #fff; padding: 8px 15px; border-radius: 0 4px 4px 0; cursor: pointer; font-size: 14px; font-weight: bold; font-family: 'Outfit', sans-serif;">Buscar</button>
+                        <input type="text" name="searchQuery" placeholder="Buscar juego en el catálogo..." value="<%= request.getAttribute("searchQuery") != null ? request.getAttribute("searchQuery") : "" %>" style="background-color: #0b120d; border: 1px solid #1a2a1f; color: #fff; padding: 8px 15px; border-radius: 4px 0 0 4px; outline: none; font-size: 14px; width: 230px; font-family: 'Outfit', sans-serif;">
+                        <button type="submit" style="background-color: #3df27b; border: none; color: #060a07; padding: 8px 15px; border-radius: 0 4px 4px 0; cursor: pointer; font-size: 14px; font-weight: bold; font-family: 'Outfit', sans-serif;">Buscar</button>
                         <% if (request.getAttribute("searchResults") != null) { %>
                             <a href="${pageContext.request.contextPath}/recommendations" style="color: #eb5e55; text-decoration: none; margin-left: 12px; font-size: 13px; font-weight: bold; font-family: 'Outfit', sans-serif;">Limpiar</a>
                         <% } %>
@@ -59,7 +59,7 @@
             <!-- PANTALLA INICIAL (Simulación de Login) -->
             <div class="welcome-card card">
                 <div class="welcome-header">
-                    <h2>Bienvenido a <span class="highlight-cyan">Steam</span><span class="highlight-blue">V2</span></h2>
+                    <h2>Bienvenido a <span class="highlight-cyan">Steam</span><span class="highlight-blue">Berde</span></h2>
                     <p class="subtitle">Simulador de Recomendaciones de Videojuegos usando la Estructura de Datos <strong>Union-Find</strong></p>
                 </div>
                 
@@ -73,7 +73,7 @@
                             <label for="userSelect" style="display: block; margin-bottom: 8px; font-weight: 600; color: #a3a3a3;">
                                 Selecciona un perfil de usuario:
                             </label>
-                            <select id="userSelect" name="username" style="width: 100%; padding: 12px; border-radius: 8px; background-color: #1a222d; border: 1px solid #3b4e65; color: #fff; font-size: 16px; outline: none; font-family: 'Outfit', sans-serif;">
+                            <select id="userSelect" name="username" style="width: 100%; padding: 12px; border-radius: 8px; background-color: #0b120d; border: 1px solid #1a2a1f; color: #fff; font-size: 16px; outline: none; font-family: 'Outfit', sans-serif;">
                                 <% if (allUsers != null) {
                                     for (User u : allUsers) { %>
                                         <option value="<%= u.getUsername() %>">
@@ -98,7 +98,7 @@
 
             <div class="profile-summary card" style="display: flex; align-items: center; justify-content: space-between;">
                 <div class="profile-info" style="display: flex; align-items: center; gap: 15px;">
-                    <div class="avatar-placeholder" style="width: 50px; height: 50px; border-radius: 50%; background-color: #2a475e; color: #66c0f4; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px;">
+                    <div class="avatar-placeholder" style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #0f9b58, #3df27b); color: #060a07; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px;">
                         <%= username.substring(0, Math.min(username.length(), 2)).toUpperCase() %>
                     </div>
                     <div>
@@ -119,12 +119,12 @@
                 String searchQuery = (String) request.getAttribute("searchQuery");
                 if (searchResults != null) { 
             %>
-                <div class="card" style="margin-bottom: 30px; border: 1px solid #66c0f4; background: linear-gradient(180deg, #101a24 0%, #0c121a 100%);">
+                <div class="card" style="margin-bottom: 30px; border: 1px solid #3df27b; background: linear-gradient(180deg, #0f1c13 0%, #060a07 100%); border-radius: 16px;">
                     <div class="column-header">
                         <span style="font-size: 24px; margin-right: 12px;">🔍</span>
                         <h3 style="color: #fff;">Resultados para: <span class="highlight-cyan">"<%= searchQuery %>"</span></h3>
                     </div>
-                    <p class="section-desc" style="border-bottom: 1px solid #1c2e42; padding-bottom: 10px; margin-bottom: 15px;">Juegos encontrados en todo el catálogo de SteamV2.</p>
+                    <p class="section-desc" style="border-bottom: 1px solid #1a2a1f; padding-bottom: 10px; margin-bottom: 15px;">Juegos encontrados en todo el catálogo de Steam Berde.</p>
                     <ul class="game-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; list-style: none;">
                         <% if (!searchResults.isEmpty()) {
                             for (Game game : searchResults) { 
@@ -138,7 +138,7 @@
                                     }
                                 }
                         %>
-                                <li class="game-item" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; background-color: #16202d; border-radius: 6px; border: 1px solid #20354a; border-left: 4px solid <%= alreadyOwned ? "#54a5d4" : "#66c0f4" %>; margin: 0;">
+                                <li class="game-item" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; background-color: #0b120d; border-radius: 6px; border: 1px solid #1a2a1f; border-left: 4px solid <%= alreadyOwned ? "#0f9b58" : "#3df27b" %>; margin: 0;">
                                     <div style="display: flex; flex-direction: column; flex-grow: 1;">
                                         <span class="game-title" style="font-weight: 600; color: #fff; font-size: 14px;"><%= game.getName() %></span>
                                         <span class="game-genres" style="font-size: 11px; color: #8899a6; margin-top: 4px;">
@@ -148,7 +148,7 @@
                                     <% if (alreadyOwned) { %>
                                         <span class="badge badge-owned">Adquirido</span>
                                     <% } else { %>
-                                        <button class="carousel-btn-add" style="padding: 6px 12px; font-size: 11px; border-radius: 4px; border: none; background: #66c0f4; color: #fff; cursor: pointer; font-weight: bold;" onclick="addGameToLibrary(<%= game.getId() %>)">Añadir</button>
+                                        <button class="carousel-btn-add" style="padding: 6px 12px; font-size: 11px; border-radius: 4px; border: none; background: #3df27b; color: #060a07; cursor: pointer; font-weight: bold;" onclick="addGameToLibrary(<%= game.getId() %>)">Añadir</button>
                                     <% } %>
                                 </li>
                         <%  }
@@ -160,12 +160,12 @@
             <% } %>
 
             <!-- CARRUSEL DE RECOMENDADOS (ESTILO STEAM) -->
-            <div class="card" style="padding: 24px; margin-bottom: 30px; background: linear-gradient(180deg, #162430 0%, #121a24 100%); border: 1px solid #233c51;">
+            <div class="card" style="padding: 24px; margin-bottom: 30px; background: linear-gradient(180deg, #0f1c13 0%, #060a07 100%); border: 1px solid #1a2a1f;">
                 <div class="column-header">
-                    <svg class="icon" fill="currentColor" viewBox="0 0 24 24" style="color: #66c0f4;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
+                    <svg class="icon" fill="currentColor" viewBox="0 0 24 24" style="color: #3df27b;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
                     <h3 style="font-size: 20px; text-transform: uppercase; letter-spacing: 1px; color: #fff;">Destacados y Recomendados</h3>
                 </div>
-                <p class="section-desc" style="margin-bottom: 15px; border-bottom: 1px solid #233c51; padding-bottom: 10px;">Videojuegos sugeridos basados en tu grupo de Union-Find. Desliza para explorar.</p>
+                <p class="section-desc" style="margin-bottom: 15px; border-bottom: 1px solid #1a2a1f; padding-bottom: 10px;">Videojuegos sugeridos basados en tu grupo de Union-Find. Desliza para explorar.</p>
                 
                 <% if (recommendations != null && !recommendations.isEmpty()) { %>
                     <div class="steam-carousel" id="recommendationsCarousel">
@@ -251,7 +251,7 @@
                     <ul class="game-list">
                         <% if (library != null && !library.isEmpty()) { 
                             for (Game game : library) { %>
-                                <li class="game-item owned" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; margin-bottom: 8px; border-radius: 6px; background-color: #1a222d; border-left: 4px solid #54a5d4;">
+                                <li class="game-item owned" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; margin-bottom: 8px; border-radius: 6px; background-color: #0b120d; border-left: 4px solid #0f9b58;">
                                     <div style="display: flex; flex-direction: column; flex-grow: 1;">
                                         <span class="game-title" style="font-weight: 600; color: #fff;"><%= game.getName() %></span>
                                         <span class="game-genres" style="font-size: 12px; color: #8899a6; margin-top: 4px;">
@@ -280,7 +280,7 @@
                     <ul class="game-list">
                         <% if (recommendations != null && !recommendations.isEmpty()) { 
                             for (Game game : recommendations) { %>
-                                 <li class="game-item recommended" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; margin-bottom: 8px; border-radius: 6px; background-color: #1a222d; border-left: 4px solid #5c7e10;">
+                                 <li class="game-item recommended" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; margin-bottom: 8px; border-radius: 6px; background-color: #0b120d; border-left: 4px solid #3df27b;">
                                      <div style="display: flex; flex-direction: column; flex-grow: 1;">
                                          <span class="game-title" style="font-weight: 600; color: #fff;"><%= game.getName() %></span>
                                          <span class="game-genres" style="font-size: 12px; color: #8899a6; margin-top: 4px;">
@@ -316,8 +316,8 @@
                             List<String> members = entry.getValue();
                             boolean isUserInGroup = (username != null && members.contains(username));
                     %>
-                            <div class="cluster-card" style="padding: 15px; border-radius: 8px; background: <%= isUserInGroup ? "linear-gradient(135deg, #1b2838, #171a21)" : "#171a21" %>; border: 1px solid <%= isUserInGroup ? "#66c0f4" : "#2a475e" %>; box-shadow: <%= isUserInGroup ? "0 0 10px rgba(102,192,244,0.2)" : "none" %>;">
-                                <h5 style="margin: 0 0 10px 0; color: <%= isUserInGroup ? "#66c0f4" : "#c7d5e0" %>; font-size: 14px; font-weight: 600; text-transform: uppercase;">
+                            <div class="cluster-card" style="padding: 15px; border-radius: 8px; background: <%= isUserInGroup ? "linear-gradient(135deg, #0f1c13, #0b120d)" : "#0b120d" %>; border: 1px solid <%= isUserInGroup ? "#3df27b" : "#1a2a1f" %>; box-shadow: <%= isUserInGroup ? "0 0 10px rgba(61,242,123,0.2)" : "none" %>;">
+                                <h5 style="margin: 0 0 10px 0; color: <%= isUserInGroup ? "#3df27b" : "#c7d5e0" %>; font-size: 14px; font-weight: 600; text-transform: uppercase;">
                                     GRUPO <%= representative %> <%= isUserInGroup ? "★ (Tu Grupo)" : "" %>
                                 </h5>
                                 <p style="font-size: 12px; margin: 0 0 8px 0; color: #8899a6;">
@@ -325,7 +325,7 @@
                                 </p>
                                 <div style="display: flex; flex-wrap: wrap; gap: 6px;">
                                     <% for (String member : members) { %>
-                                        <span class="badge" style="background-color: <%= member.equals(username) ? "#66c0f4" : "#2a475e" %>; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 500;">
+                                        <span class="badge" style="background-color: <%= member.equals(username) ? "#3df27b" : "#1a2a1f" %>; color: <%= member.equals(username) ? "#060a07" : "#fff" %>; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
                                             <%= member %>
                                         </span>
                                     <% } %>
@@ -360,7 +360,7 @@
 
     <footer class="steam-footer">
         <div class="container footer-content">
-            <p>© 2026 SteamV2. Desarrollado como proyecto de Estructura de Datos 2.</p>
+            <p>© 2026 Steam Berde. Desarrollado como proyecto de Estructura de Datos 2.</p>
             <p class="footer-links"><a href="#">Privacidad</a> | <a href="#">Términos Legales</a> | <a href="#">Acuerdo de Suscriptor</a></p>
         </div>
     </footer>
