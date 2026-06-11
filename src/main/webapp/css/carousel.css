@@ -1,11 +1,11 @@
 /* --- OVERRIDES FOR GREEN THEME (STEAM BERDE) --- */
 :root {
-    --bg-darker: #060a07;
-    --bg-dark: #0b120d;
-    --bg-card: #111c14;
-    --border-color: #1a2a1f;
-    --accent-blue: #0f9b58; /* Forest Green */
-    --accent-cyan: #3df27b; /* Neon Mint Green */
+    --bg-darker: #121e16;
+    --bg-dark: #0a120d;
+    --bg-card: #1a3022;
+    --border-color: #2a4c35;
+    --accent-blue: #1ebd60;
+    --accent-cyan: #42f58e;
 }
 
 /* Override utility color highlights */

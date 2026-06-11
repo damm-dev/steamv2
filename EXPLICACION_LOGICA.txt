@@ -1,0 +1,210 @@
+================================================================================
+          GUÍA DE EXPLICACIÓN LÓGICA Y ARQUITECTURA - STEAMV2
+================================================================================
+
+Este documento explica toda la lógica y la estructura del proyecto "SteamV2" para
+facilitar el diseño de los Diagramas de Clases (UML) y los Diagramas MVC / Secuencia.
+
+--------------------------------------------------------------------------------
+1. ARQUITECTURA MODELO-VISTA-CONTROLADOR (MVC)
+--------------------------------------------------------------------------------
+
+El proyecto está diseñado bajo el patrón de arquitectura clásica MVC:
+
+* MODELO (M):
+  - Representa el estado y la lógica de negocio de la aplicación.
+  - Clases involucradas:
+    - Game: Estructura de datos para representar un videojuego.
+    - User: Estructura de datos para representar a un usuario y sus gustos.
+    - UnionFind: Estructura de datos genérica para los conjuntos disjuntos (DSU).
+    - DataService: Clase Singleton que actúa como el motor del sistema. Se encarga
+      de cargar los datos simulados de los archivos JSON, construir las relaciones
+      de Union-Find y calcular los conjuntos y las recomendaciones correspondientes.
+
+* VISTA (V):
+  - Representa la interfaz de usuario con la que interactúa el cliente.
+  - Archivos involucrados:
+    - index.jsp: Genera el HTML dinámico. Renderiza el panel de inicio (login),
+      la biblioteca del usuario, las sugerencias generadas y la representación visual
+      de los clusters en tiempo real.
+    - styles.css: Archivo de estilos encargado del aspecto visual y de las
+      transiciones y animaciones fluidas (Aesthetic Premium).
+
+* CONTROLADOR (C):
+  - Actúa como intermediario entre la Vista y el Modelo. Recibe las peticiones,
+    administra el estado del flujo (como la sesión) y decide qué vista mostrar.
+  - Servlet involucrado:
+    - RecommendationServlet: Mapeado en la ruta "/recommendations". Recibe las
+      acciones GET y POST, gestiona la sesión (login/logout), interactúa con
+      DataService para procesar las consultas y despacha la petición al index.jsp.
+
+--------------------------------------------------------------------------------
+2. USO Y LÓGICA DEL ALGORITMO UNION-FIND (DISJOINT SET UNION - DSU)
+--------------------------------------------------------------------------------
+
+El Union-Find se utiliza para resolver el problema de agrupación (clustering) de
+usuarios con base en sus gustos de videojuegos (filtrado colaborativo simple).
+
+* CONCEPTO:
+  Si al Usuario A y al Usuario B les gusta al menos un juego en común, pertenecen al
+  mismo grupo (interés compartido). Por transitividad, si a B y C les gusta otro juego
+  en común, A, B y C se consolidan en el mismo conjunto disjunto.
+
+* FLUJO DE LA LÓGICA PASO A PASO:
+  1. Inicialización (makeSet):
+     Al arrancar, todos los usuarios leídos de `users.json` se inicializan en el Union-Find
+     como su propio representante raíz. Es decir, inicialmente cada usuario forma un
+     conjunto unitario aislado.
+  
+  2. Agrupación por Gusto Común (union):
+     Para relacionar los usuarios, el sistema crea un mapa invertido:
+     - Clave: ID de Videojuego.
+     - Valor: Lista de nombres de usuarios que tienen ese videojuego en favoritos.
+     
+     Luego, para cada juego de este mapa, si hay 2 o más usuarios que lo prefieren, se ejecuta:
+     `union(primerUsuario, usuarioN)` para todos los demás de la lista.
+     Esto conecta automáticamente a los usuarios bajo un mismo nodo representativo.
+
+  3. Optimización del DSU:
+     - Path Compression (Compresión de Caminos) en `find()`:
+       Durante las consultas, cada nodo visitado se apunta directamente a la raíz del conjunto.
+       Esto aplana la estructura de árbol haciéndolo casi de altura constante.
+     - Union by Rank (Unión por Rango) en `union()`:
+       Al unir dos conjuntos, el árbol con menor rango se cuelga bajo la raíz del árbol con
+       mayor rango, lo que previene que los árboles se vuelvan desbalanceados.
+
+  4. Obtención de Recomendaciones:
+     Cuando un usuario "U" inicia sesión, queremos recomendarle videojuegos:
+     a) Buscamos su representante raíz: `raizU = find(U)`.
+     b) Buscamos a todos los usuarios "V" del sistema que cumplan con `find(V) == raizU`
+        (es decir, que pertenezcan al mismo conjunto o cluster).
+     c) Recopilamos todos los juegos favoritos de estos usuarios "V".
+     d) Filtramos y eliminamos los juegos que el usuario "U" ya posea en su biblioteca.
+     e) Ordenamos el resto por popularidad (frecuencia de gusto en ese cluster) y los
+        mostramos como recomendaciones prioritarias.
+
+--------------------------------------------------------------------------------
+3. GUÍA DE ESPECIFICACIONES PARA EL DIAGRAMA DE CLASES
+--------------------------------------------------------------------------------
+
+A continuación se detallan los miembros clave para mapear las clases al diagrama UML:
+
+----------------------------------------------------
+|                 com.steamv2.model                |
+----------------------------------------------------
+
++---------------------------------------------+
+| Game                                        |
++---------------------------------------------+
+| - id: int                                   |
+| - name: String                              |
+| - genres: List<String>                      |
++---------------------------------------------+
+| + Game()                                    |
+| + Game(id: int, name: String, genres: List) |
+| + getId(): int                              |
+| + getName(): String                         |
+| + getGenres(): List<String>                 |
+| + toString(): String                        |
++---------------------------------------------+
+
++---------------------------------------------+
+| User                                        |
++---------------------------------------------+
+| - username: String                          |
+| - password: String                          |
+| - likedGames: List<Integer>                 |
++---------------------------------------------+
+| + User()                                    |
+| + User(user: String, pass: String, likes: List) |
+| + getUsername(): String                     |
+| + getPassword(): String                     |
+| + getLikedGames(): List<Integer>            |
+| + toString(): String                        |
++---------------------------------------------+
+
++---------------------------------------------+
+| UnionFind<T>                                |
++---------------------------------------------+
+| - parent: Map<T, T>                         |
+| - rank: Map<T, Integer>                     |
++---------------------------------------------+
+| + makeSet(element: T): void                 |
+| + find(element: T): T                       |
+| + union(element1: T, element2: T): boolean  |
+| + connected(element1: T, elem2: T): boolean |
+| + getParentMap(): Map<T, T>                 |
++---------------------------------------------+
+
+----------------------------------------------------
+|                com.steamv2.service               |
+----------------------------------------------------
+
++---------------------------------------------+
+| DataService                                 |
++---------------------------------------------+
+| - instance: DataService {static}            |
+| - games: List<Game>                         |
+| - users: List<User>                         |
+| - gameMap: Map<Integer, Game>               |
+| - userMap: Map<String, User>                |
+| - unionFind: UnionFind<String>              |
++---------------------------------------------+
+| - DataService()                             |
+| + getInstance(): DataService {static, sync} |
+| - loadData(): void                          |
+| + buildClusters(): void                     |
+| + getGames(): List<Game>                    |
+| + getUsers(): List<User>                    |
+| + getGameById(id: int): Game                |
+| + getUserByUsername(user: String): User    |
+| + getUnionFind(): UnionFind<String>         |
+| + getUserLibrary(user: String): List<Game>  |
+| + getRecommendations(user: String): List    |
+| + getGroups(): Map<String, List<String>>    |
+| + addLikedGameToUser(user: String, gameId: int): boolean |
++---------------------------------------------+
+
+----------------------------------------------------
+|               com.steamv2.controller             |
+----------------------------------------------------
+
++---------------------------------------------+
+| RecommendationServlet                       |
++---------------------------------------------+
+| (Hereda de HttpServlet)                      |
++---------------------------------------------+
+| # doGet(req: HttpServletRequest, resp: ...)  |
+| # doPost(req: HttpServletRequest, resp: ...) |
++---------------------------------------------+
+
+--------------------------------------------------------------------------------
+4. DIAGRAMA DE FLUJO / SECUENCIA (CICLO DE PETICIÓN MVC)
+--------------------------------------------------------------------------------
+
+Flujo de la solicitud para Cargar Simulación / Iniciar Sesión:
+
+[Cliente]                     [Servlet]                  [DataService]               [UnionFind]              [JSP]
+    │                             │                            │                          │                     │
+    │───(POST: login usuario)────>│                            │                          │                     │
+    │                             │──(guarda user en sesión)──>│                          │                     │
+    │                             │                            │                          │                     │
+    │<───(Redirección GET)────────│                            │                          │                     │
+    │                             │                            │                          │                     │
+    │───(GET /recommendations)───>│                            │                          │                     │
+    │                             │───(getUserLibrary)────────>│                          │                     │
+    │                             │                            │                          │                     │
+    │                             │───(getRecommendations)────>│                          │                     │
+    │                             │                            │───(find represent.)─────>│                     │
+    │                             │                            │<───(retorna raíz)────────│                     │
+    │                             │                            │                          │                     │
+    │                             │                            │───(compara raíces)──────>│                     │
+    │                             │                            │<───(filtra e identifica)─│                     │
+    │                             │<──(retorna listas)─────────│                          │                     │
+    │                             │                            │                          │                     │
+    │                             │───(asigna setAttributes)───│──────────────────────────│────────────────────>│
+    │                             │                                                                             │──(Lee variables)
+    │                             │                                                                             │──(Pinta HTML)
+    │<──(HTML renderizado)────────│─────────────────────────────────────────────────────────────────────────────│
+    │                             │                                                                             │
+================================================================================
