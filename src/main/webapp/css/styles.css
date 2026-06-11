@@ -36,6 +36,7 @@ body {
     flex-direction: column;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
 }
 
 .container {
@@ -494,7 +495,7 @@ code {
 /* ── 3-Column Dashboard Layout (Tienda & Sidebars) ── */
 .steam-dashboard-layout {
     display: grid;
-    grid-template-columns: 25% 50% 25%;
+    grid-template-columns: 1fr 2fr 1fr;
     gap: 20px;
     width: 100%;
     margin-bottom: 30px;
@@ -907,13 +908,30 @@ code {
     left: 0;
     top: calc(100% + 8px);
     width: 100%;
-    background-color: rgba(10, 18, 13, 0.98);
+    background-color: rgba(10, 18, 13, 0.95);
+    backdrop-filter: blur(10px);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     box-shadow: var(--shadow-lg), 0 10px 25px rgba(0,0,0,0.5);
     max-height: 320px;
     overflow-y: auto;
     z-index: 999;
+}
+
+/* Scrollbar para las sugerencias de búsqueda */
+.search-suggestions-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+.search-suggestions-dropdown::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+    border-radius: 3px;
+}
+.search-suggestions-dropdown::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+.search-suggestions-dropdown::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-cyan);
 }
 
 .suggestions-list {

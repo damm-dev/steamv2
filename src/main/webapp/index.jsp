@@ -102,24 +102,24 @@
         <div class="container header-content">
             <div class="logo" style="display: flex; align-items: center; gap: 12px;">
                 <img src="${pageContext.request.contextPath}/images/logo.png" alt="SteamBerde Logo" style="height: 32px; width: 32px; object-fit: contain;">
-                <div style="display: flex; align-items: center; margin-right: 15px;">
+                <div style="display: flex; align-items: center;">
                     <span class="highlight-cyan">STEAM</span><span class="highlight-blue">BERDE</span>
                 </div>
-                
-                <!-- Buscador dinámico con sugerencias flotantes -->
-                <div class="search-container" id="navSearchContainer" style="display: <%= username != null ? "block" : "none" %>;">
-                    <div class="search-input-wrapper">
-                        <span class="search-icon">
-                            <svg class="search-icon-svg" viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"/></svg>
-                        </span>
-                        <input type="text" id="searchInput" placeholder="Buscar juego en el catálogo..." autocomplete="off">
-                        <button type="button" class="search-clear-btn" id="searchClearBtn" style="display: none;">
-                            <svg viewBox="0 0 24 24" width="10" height="10"><path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/></svg>
-                        </button>
-                    </div>
-                    <div class="search-suggestions-dropdown" id="searchSuggestionsDropdown" style="display: none;">
-                        <div class="suggestions-list" id="suggestionsList"></div>
-                    </div>
+            </div>
+            
+            <!-- Buscador dinámico con sugerencias flotantes -->
+            <div class="search-container" id="navSearchContainer" style="display: <%= username != null ? "block" : "none" %>;">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">
+                        <svg class="search-icon-svg" viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"/></svg>
+                    </span>
+                    <input type="text" id="searchInput" placeholder="Buscar juego en el catálogo..." autocomplete="off">
+                    <button type="button" class="search-clear-btn" id="searchClearBtn" style="display: none;">
+                        <svg viewBox="0 0 24 24" width="10" height="10"><path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/></svg>
+                    </button>
+                </div>
+                <div class="search-suggestions-dropdown" id="searchSuggestionsDropdown" style="display: none;">
+                    <div class="suggestions-list" id="suggestionsList"></div>
                 </div>
             </div>
             
