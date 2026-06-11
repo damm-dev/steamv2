@@ -12,6 +12,7 @@
     List<User> allUsers = (List<User>) request.getAttribute("allUsers");
     List<Game> allGames = (List<Game>) request.getAttribute("allGames");
     Map<String, List<String>> unionFindGroups = (Map<String, List<String>>) request.getAttribute("unionFindGroups");
+    Map<String, String> unionFindParents = (Map<String, String>) request.getAttribute("unionFindParents");
 
     // Si accedemos directamente al JSP sin pasar por el servlet, redirigir al controlador
     if (allUsers == null) {
@@ -35,65 +36,19 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css?v=<%= System.currentTimeMillis() %>">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/carousel.css?v=<%= System.currentTimeMillis() %>">
     <!-- Inyección de estado inicial de la aplicación -->
+    <script id="steamStateData" type="application/json">
+        {
+            "username": <%= username != null ? new Gson().toJson(username) : "null" %>,
+            "library": <%= library != null ? new Gson().toJson(library) : "[]" %>,
+            "recommendations": <%= recommendations != null ? new Gson().toJson(recommendations) : "[]" %>,
+            "unionFindGroups": <%= unionFindGroups != null ? new Gson().toJson(unionFindGroups) : "{}" %>,
+            "unionFindParents": <%= unionFindParents != null ? new Gson().toJson(unionFindParents) : "{}" %>,
+            "allUsers": <%= allUsers != null ? new Gson().toJson(allUsers) : "[]" %>,
+            "allGames": <%= allGames != null ? new Gson().toJson(allGames) : "[]" %>
+        }
+    </script>
     <script>
-        window.steamState = {
-            username: <%= username != null ? "\"" + username + "\"" : "null" %>,
-            library: [
-                <% if (library != null) {
-                    for (int i = 0; i < library.size(); i++) {
-                        Game g = library.get(i);
-                %>
-                    {
-                        id: <%= g.getId() %>,
-                        name: "<%= g.getName().replace("\"", "\\\"") %>",
-                        genres: <%= g.getGenres() != null ? new Gson().toJson(g.getGenres()) : "[]" %>,
-                        image: "<%= g.getImage() != null ? g.getImage() : "" %>"
-                    }<%= i < library.size() - 1 ? "," : "" %>
-                <%  }
-                } %>
-            ],
-            recommendations: [
-                <% if (recommendations != null) {
-                    for (int i = 0; i < recommendations.size(); i++) {
-                        Game g = recommendations.get(i);
-                %>
-                    {
-                        id: <%= g.getId() %>,
-                        name: "<%= g.getName().replace("\"", "\\\"") %>",
-                        genres: <%= g.getGenres() != null ? new Gson().toJson(g.getGenres()) : "[]" %>,
-                        image: "<%= g.getImage() != null ? g.getImage() : "" %>"
-                    }<%= i < recommendations.size() - 1 ? "," : "" %>
-                <%  }
-                } %>
-            ],
-            unionFindGroups: <%= unionFindGroups != null ? new Gson().toJson(unionFindGroups) : "{}" %>,
-            allUsers: [
-                <% if (allUsers != null) {
-                    for (int i = 0; i < allUsers.size(); i++) {
-                        User u = allUsers.get(i);
-                %>
-                    {
-                        username: "<%= u.getUsername() %>",
-                        likedGames: <%= u.getLikedGames() != null ? new Gson().toJson(u.getLikedGames()) : "[]" %>
-                    }<%= i < allUsers.size() - 1 ? "," : "" %>
-                <%  }
-                } %>
-            ],
-            allGames: [
-                <% if (allGames != null) {
-                    for (int i = 0; i < allGames.size(); i++) {
-                        Game g = allGames.get(i);
-                %>
-                    {
-                        id: <%= g.getId() %>,
-                        name: "<%= g.getName().replace("\"", "\\\"") %>",
-                        genres: <%= g.getGenres() != null ? new Gson().toJson(g.getGenres()) : "[]" %>,
-                        image: "<%= g.getImage() != null ? g.getImage() : "" %>"
-                    }<%= i < allGames.size() - 1 ? "," : "" %>
-                <%  }
-                } %>
-            ]
-        };
+        window.steamState = JSON.parse(document.getElementById('steamStateData').textContent);
         window.contextPath = "${pageContext.request.contextPath}";
     </script>
 </head>
@@ -223,9 +178,15 @@
 
                     <!-- Columna Central: Visualizador de Grupos (Union-Find) (CAMBIADO A HORIZONTAL) -->
                     <div class="sidebar-card">
-                        <div class="column-header" style="margin-bottom: 6px;">
-                            <svg class="icon" fill="currentColor" viewBox="0 0 24 24" style="color: #42f58e;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.53c-.26-.81-1-1.4-1.9-1.4h-1v-3c0-.55-.45-1-1-1h-6v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-                            <h3>Visualizador de Grupos</h3>
+                        <div class="column-header" style="margin-bottom: 6px; display: flex; align-items: center; width: 100%; justify-content: space-between;">
+                            <div style="display: flex; align-items: center;">
+                                <svg class="icon" fill="currentColor" viewBox="0 0 24 24" style="color: #42f58e;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.53c-.26-.81-1-1.4-1.9-1.4h-1v-3c0-.55-.45-1-1-1h-6v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                                <h3 style="margin: 0 0 0 6px;">Visualizador de Grupos</h3>
+                            </div>
+                            <div class="view-toggles" style="display: flex; gap: 8px;">
+                                <button id="btnViewCards" class="btn-toggle active" onclick="switchVisualizerView('cards')">Tarjetas</button>
+                                <button id="btnViewTree" class="btn-toggle" onclick="switchVisualizerView('tree')">Árboles (DSU)</button>
+                            </div>
                         </div>
                         <p class="section-desc" style="font-size: 12px; margin-bottom: 10px; padding-bottom: 8px;">Conjuntos disjuntos (DSU) en memoria agrupados por coincidencia.</p>
                         
@@ -254,6 +215,7 @@
                             <%  }
                                } %>
                         </div>
+                        <div class="clusters-tree-container" id="groupsTreeContainer" style="display: none; flex: 1; min-height: 0; overflow: auto; position: relative;"></div>
                     </div>
 
                     <!-- Columna Derecha: Sugerencias para Ti -->

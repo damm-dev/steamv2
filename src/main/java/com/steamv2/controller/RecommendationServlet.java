@@ -43,6 +43,7 @@ public class RecommendationServlet extends HttpServlet {
         // 3. Pasar los grupos/clusters actuales del Union-Find para visualizarlos en pantalla
         Map<String, List<String>> groups = dataService.getGroups();
         request.setAttribute("unionFindGroups", groups);
+        request.setAttribute("unionFindParents", dataService.getUnionFind().getParentMap());
 
         List<Game> library = null;
         List<Game> recommendations = null;
@@ -78,6 +79,7 @@ public class RecommendationServlet extends HttpServlet {
             data.put("allUsers", dataService.getUsers());
             data.put("allGames", dataService.getGames());
             data.put("unionFindGroups", groups);
+            data.put("unionFindParents", dataService.getUnionFind().getParentMap());
             
             if (loggedUser != null && !loggedUser.trim().isEmpty()) {
                 data.put("library", library);
@@ -159,6 +161,7 @@ public class RecommendationServlet extends HttpServlet {
             data.put("allUsers", dataService.getUsers());
             data.put("allGames", dataService.getGames());
             data.put("unionFindGroups", dataService.getGroups());
+            data.put("unionFindParents", dataService.getUnionFind().getParentMap());
             
             if (loggedUser != null && !loggedUser.trim().isEmpty()) {
                 data.put("library", dataService.getUserLibrary(loggedUser));

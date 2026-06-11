@@ -2,22 +2,24 @@
   {
     "username": "Eduardo",
     "password": "password123",
+    "likedGames": []
+  },
+  {
+    "username": "Ashley",
+    "password": "password456",
     "likedGames": [
       2
     ]
   },
   {
-    "username": "Ashley",
-    "password": "password456",
-    "likedGames": []
-  },
-  {
     "username": "Diana",
     "password": "password789",
     "likedGames": [
-      2,
+      7,
       6,
-      7
+      4,
+      14,
+      2
     ]
   },
   {
@@ -28,7 +30,9 @@
   {
     "username": "Diego",
     "password": "passwordxyz",
-    "likedGames": []
+    "likedGames": [
+      10
+    ]
   },
   {
     "username": "Michelle",
@@ -43,10 +47,8 @@
     "username": "Eduarxx05",
     "password": "runfastpassword",
     "likedGames": [
-      6,
       15,
-      9,
-      2
+      9
     ]
   }
 ]

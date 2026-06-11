@@ -29,6 +29,8 @@ function updateStateAndRender(data) {
     window.steamState.library = data.library || [];
     window.steamState.recommendations = data.recommendations || [];
     window.steamState.unionFindGroups = data.unionFindGroups || {};
+    window.steamState.unionFindParents = data.unionFindParents || {};
+
     if (data.allUsers) window.steamState.allUsers = data.allUsers;
     if (data.allGames) window.steamState.allGames = data.allGames;
 
@@ -166,16 +168,49 @@ function renderSuggestions() {
     }
 }
 
-// Render horizontal groups cluster
+// View state for visualizer
+let visualizerView = 'cards';
+let currentPositions = {};
+let animationFrameId = null;
+const transitionDuration = 600; // ms
+
+function switchVisualizerView(view) {
+    visualizerView = view;
+    
+    // Toggle active classes on buttons
+    const btnCards = document.getElementById('btnViewCards');
+    const btnTree = document.getElementById('btnViewTree');
+    if (btnCards) {
+        if (view === 'cards') btnCards.classList.add('active');
+        else btnCards.classList.remove('active');
+    }
+    if (btnTree) {
+        if (view === 'tree') btnTree.classList.add('active');
+        else btnTree.classList.remove('active');
+    }
+    
+    renderGroups();
+}
+
+// Render horizontal groups cluster or DSU trees
 function renderGroups() {
     const groups = window.steamState.unionFindGroups || {};
+    const parents = window.steamState.unionFindParents || {};
     const username = window.steamState.username;
-    const container = document.getElementById('groupsContainer');
-    if (container) {
-        container.innerHTML = '';
+    
+    const cardsContainer = document.getElementById('groupsContainer');
+    const treeContainer = document.getElementById('groupsTreeContainer');
+    
+    if (!cardsContainer || !treeContainer) return;
+    
+    if (visualizerView === 'cards') {
+        cardsContainer.style.display = 'grid';
+        treeContainer.style.display = 'none';
+        
+        cardsContainer.innerHTML = '';
         const entries = Object.entries(groups);
         if (entries.length === 0) {
-            container.innerHTML = '<div style="padding: 15px; color: var(--text-secondary); text-align: center; font-style: italic; width: 100%;">No hay grupos formados.</div>';
+            cardsContainer.innerHTML = '<div style="padding: 15px; color: var(--text-secondary); text-align: center; font-style: italic; width: 100%;">No hay grupos formados.</div>';
             return;
         }
         
@@ -204,9 +239,259 @@ function renderGroups() {
                     ${badgesHtml}
                 </div>
             `;
-            container.appendChild(card);
+            cardsContainer.appendChild(card);
         });
+    } else {
+        cardsContainer.style.display = 'none';
+        treeContainer.style.display = 'block';
+        
+        renderGroupsTree(treeContainer, groups, parents, username);
     }
+}
+
+// Render disjoint-set forest (DSU trees) using dynamic SVG with smooth transitions
+function renderGroupsTree(container, groups, parents, username) {
+    const allNodes = new Set();
+    
+    // Build adjacency list and node list
+    Object.keys(parents).forEach(child => {
+        allNodes.add(child);
+        allNodes.add(parents[child]);
+    });
+    
+    const usersCount = allNodes.size;
+    const svgWidth = Math.max(container.clientWidth - 10, usersCount * 80);
+    const svgHeight = 250;
+    
+    // Check if the SVG already exists, otherwise create it
+    let svg = document.getElementById('dsuSvg');
+    if (!svg) {
+        container.innerHTML = '';
+        svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('id', 'dsuSvg');
+        svg.setAttribute('width', svgWidth);
+        svg.setAttribute('height', svgHeight);
+        svg.style.background = '#0a120d';
+        svg.style.borderRadius = '8px';
+        svg.style.border = '1px solid var(--border-color)';
+        svg.style.display = 'block';
+        container.appendChild(svg);
+    } else {
+        svg.setAttribute('width', svgWidth);
+    }
+    
+    const childrenMap = {};
+    Object.keys(parents).forEach(child => {
+        const p = parents[child];
+        if (p !== child) {
+            if (!childrenMap[p]) childrenMap[p] = [];
+            childrenMap[p].push(child);
+        }
+    });
+    
+    const roots = [];
+    allNodes.forEach(node => {
+        if (parents[node] === node) {
+            roots.push(node);
+        }
+    });
+    
+    if (roots.length === 0) {
+        container.innerHTML = '<div style="padding: 20px; color: var(--text-secondary); text-align: center; font-style: italic;">No hay árboles DSU disponibles.</div>';
+        currentPositions = {};
+        return;
+    }
+    
+    // Calculate new target coordinates
+    const targetCoords = {};
+    const sortedRoots = [...roots].sort((a, b) => {
+        const aIsActive = (groups[a] || []).includes(username);
+        const bIsActive = (groups[b] || []).includes(username);
+        if (aIsActive && !bIsActive) return -1;
+        if (!aIsActive && bIsActive) return 1;
+        return a.localeCompare(b);
+    });
+    
+    let currentLeft = 0;
+    sortedRoots.forEach(root => {
+        const members = groups[root] || [root];
+        const groupWidth = (members.length / usersCount) * (svgWidth - 40);
+        const leftBound = currentLeft + 20;
+        const rightBound = currentLeft + 20 + groupWidth;
+        
+        layoutTree(root, leftBound, rightBound, 0);
+        currentLeft += groupWidth;
+    });
+    
+    function layoutTree(node, left, right, depth) {
+        const x = (left + right) / 2;
+        const y = 40 + depth * 65;
+        targetCoords[node] = { x, y, depth };
+        
+        const children = childrenMap[node] || [];
+        if (children.length > 0) {
+            const segmentWidth = (right - left) / children.length;
+            children.forEach((child, i) => {
+                layoutTree(child, left + i * segmentWidth, left + (i + 1) * segmentWidth, depth + 1);
+            });
+        }
+    }
+    
+    // Animate transition to new coordinates
+    animateTransition(targetCoords, parents, username);
+}
+
+// Coordinate transition animator
+function animateTransition(targetCoords, targetParents, username) {
+    const startTime = performance.now();
+    
+    // Map initial coords
+    const startCoords = {};
+    Object.keys(targetCoords).forEach(node => {
+        if (currentPositions[node]) {
+            startCoords[node] = { ...currentPositions[node] };
+        } else {
+            // New node: start at parent's current position if available, else at its target position
+            const parent = targetParents[node];
+            if (parent && currentPositions[parent]) {
+                startCoords[node] = { ...currentPositions[parent] };
+            } else {
+                startCoords[node] = { ...targetCoords[node] };
+            }
+        }
+    });
+    
+    // If it's the very first rendering, set directly without animation
+    if (Object.keys(currentPositions).length === 0) {
+        Object.keys(targetCoords).forEach(node => {
+            currentPositions[node] = { ...targetCoords[node] };
+        });
+        drawSvgFrame(targetParents, username);
+        return;
+    }
+    
+    function step(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / transitionDuration, 1);
+        
+        // ease-out cubic
+        const ease = 1 - Math.pow(1 - progress, 3);
+        
+        Object.keys(targetCoords).forEach(node => {
+            const start = startCoords[node];
+            const end = targetCoords[node];
+            currentPositions[node] = {
+                x: start.x + (end.x - start.x) * ease,
+                y: start.y + (end.y - start.y) * ease
+            };
+        });
+        
+        drawSvgFrame(targetParents, username);
+        
+        if (progress < 1) {
+            animationFrameId = requestAnimationFrame(step);
+        } else {
+            // Set exact final positions
+            currentPositions = { ...targetCoords };
+            drawSvgFrame(targetParents, username);
+            animationFrameId = null;
+        }
+    }
+    
+    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    animationFrameId = requestAnimationFrame(step);
+}
+
+// Draws the current positions frame onto the SVG element
+function drawSvgFrame(targetParents, username) {
+    const svg = document.getElementById('dsuSvg');
+    if (!svg) return;
+    
+    let elementsHtml = `
+        <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="21" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#2a4c35" />
+            </marker>
+            <marker id="arrow-active" viewBox="0 0 10 10" refX="21" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#42f58e" />
+            </marker>
+        </defs>
+    `;
+    
+    const allNodes = Object.keys(currentPositions);
+    
+    // Trace the active search path to root
+    const activePath = new Set();
+    let curr = username;
+    if (curr && targetParents[curr]) {
+        while (curr) {
+            activePath.add(curr);
+            const next = targetParents[curr];
+            if (next === curr || !next) break;
+            curr = next;
+        }
+    }
+    
+    // 1. Draw Directed Edges (Arrows)
+    allNodes.forEach(node => {
+        const p = targetParents[node];
+        if (p && p !== node && currentPositions[node] && currentPositions[p]) {
+            const start = currentPositions[node];
+            const end = currentPositions[p];
+            const isEdgeActive = activePath.has(node) && activePath.has(p) && targetParents[node] === p;
+            
+            elementsHtml += `
+                <line x1="${start.x}" y1="${start.y}" x2="${end.x}" y2="${end.y}"
+                      stroke="${isEdgeActive ? '#42f58e' : '#2a4c35'}"
+                      stroke-width="${isEdgeActive ? '3' : '2'}"
+                      marker-end="url(${isEdgeActive ? '#arrow-active' : '#arrow'})" />
+            `;
+        }
+    });
+    
+    // 2. Draw Nodes and text labels
+    allNodes.forEach(node => {
+        if (!currentPositions[node]) return;
+        const { x, y } = currentPositions[node];
+        
+        let nodeColor = '#1a3022';
+        let strokeColor = 'var(--border-color)';
+        let strokeWidth = '2';
+        let textColor = '#fff';
+        let labelColor = '#8da294';
+        
+        if (node === username) {
+            nodeColor = 'var(--accent-cyan)';
+            strokeColor = '#fff';
+            textColor = '#0a120d';
+            labelColor = 'var(--accent-cyan)';
+        } else if (targetParents[node] === node) {
+            nodeColor = '#1ebd60';
+            strokeColor = '#42f58e';
+            labelColor = '#42f58e';
+        }
+        
+        // Active search path dashed glow circle
+        if (activePath.has(node)) {
+            elementsHtml += `
+                <circle cx="${x}" cy="${y}" r="19" fill="none"
+                        stroke="${node === username ? 'var(--accent-cyan)' : '#42f58e'}"
+                        stroke-width="1.5" stroke-dasharray="3,3" />
+            `;
+        }
+        
+        elementsHtml += `
+            <circle cx="${x}" cy="${y}" r="15" fill="${nodeColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" />
+            <text x="${x}" y="${y + 4}" text-anchor="middle" font-size="11" font-weight="800" fill="${textColor}">
+                ${node.charAt(0).toUpperCase()}
+            </text>
+            <text x="${x}" y="${y + 26}" text-anchor="middle" font-size="10" font-weight="600" fill="${labelColor}">
+                ${node}
+            </text>
+        `;
+    });
+    
+    svg.innerHTML = elementsHtml;
 }
 
 // Dynamic Carousel renderer
