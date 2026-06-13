@@ -74,12 +74,12 @@ public class DataService {
     public void buildClusters() {
         unionFind = new UnionFind<>();
 
-        // 1. Registrar a todos los usuarios como conjuntos disjuntos iniciales (makeSet)
+        // Inicializar conjuntos disjuntos para cada usuario
         for (User u : users) {
             unionFind.makeSet(u.getUsername());
         }
 
-        // 2. Mapear cada juego a la lista de usuarios a los que les gusta
+        // Agrupar usuarios por gustos en común
         Map<Integer, List<String>> gameToUsers = new HashMap<>();
         for (User u : users) {
             if (u.getLikedGames() != null) {
@@ -89,7 +89,7 @@ public class DataService {
             }
         }
 
-        // 3. Unir (union) usuarios que tienen al menos un juego en común
+        // Unir usuarios que comparten al menos un juego
         for (Map.Entry<Integer, List<String>> entry : gameToUsers.entrySet()) {
             List<String> usersWhoLiked = entry.getValue();
             if (usersWhoLiked.size() > 1) {
@@ -121,9 +121,7 @@ public class DataService {
         return unionFind;
     }
 
-    /**
-     * Retorna los juegos del usuario (biblioteca).
-     */
+    // Obtener biblioteca de juegos del usuario
     public List<Game> getUserLibrary(String username) {
         User user = getUserByUsername(username);
         if (user == null || user.getLikedGames() == null) {
@@ -139,9 +137,7 @@ public class DataService {
         return library;
     }
 
-    /**
-     * Retorna las recomendaciones basadas en Union-Find para un usuario.
-     */
+    // Obtener recomendaciones basadas en Union-Find
     public List<Game> getRecommendations(String username) {
         User targetUser = getUserByUsername(username);
         if (targetUser == null) {
@@ -156,14 +152,12 @@ public class DataService {
         Set<Integer> ownedGameIds = new HashSet<>(targetUser.getLikedGames());
         Map<Integer, Integer> recommendedGameFreq = new HashMap<>();
 
-        // Encontrar todos los usuarios que pertenecen al mismo grupo
         for (User u : users) {
-            // Evitar compararse consigo mismo
             if (u.getUsername().equals(username)) {
                 continue;
             }
 
-            // Si está conectado en el Union-Find
+            // Agrupar recomendaciones de usuarios en el mismo conjunto
             if (targetRoot.equals(unionFind.find(u.getUsername()))) {
                 if (u.getLikedGames() != null) {
                     for (Integer gameId : u.getLikedGames()) {
@@ -175,7 +169,7 @@ public class DataService {
             }
         }
 
-        // Ordenar recomendaciones por frecuencia (popularidad dentro del grupo)
+        // Ordenar recomendaciones por popularidad en el grupo
         List<Map.Entry<Integer, Integer>> sortedRecs = new ArrayList<>(recommendedGameFreq.entrySet());
         sortedRecs.sort((a, b) -> b.getValue().compareTo(a.getValue()));
 
@@ -190,10 +184,7 @@ public class DataService {
         return recommendations;
     }
 
-    /**
-     * Retorna un mapa con todos los grupos (clusters) de usuarios.
-     * Útil para renderizar el estado del Union-Find en la interfaz gráfica.
-     */
+    // Obtener los grupos de usuarios agrupados por su representante
     public Map<String, List<String>> getGroups() {
         Map<String, List<String>> groups = new HashMap<>();
         for (User u : users) {
@@ -205,9 +196,7 @@ public class DataService {
         return groups;
     }
 
-    /**
-     * Agrega un juego favorito a un usuario y reconstruye los clusters del Union-Find.
-     */
+    // Agregar un juego favorito a un usuario y actualizar clusters
     public synchronized boolean addLikedGameToUser(String username, int gameId) {
         User user = getUserByUsername(username);
         if (user == null) {
@@ -219,25 +208,20 @@ public class DataService {
             liked = new ArrayList<>();
             user.setLikedGames(liked);
         } else {
-            // Asegurar que la lista es mutable y no inmutable
             liked = new ArrayList<>(liked);
             user.setLikedGames(liked);
         }
         
-        // Evitar duplicados
         if (!liked.contains(gameId)) {
             liked.add(gameId);
-            // Reconstruir los clusters en memoria con los nuevos gustos
             buildClusters();
-            saveUsersData(); // Guardar cambios en el JSON
+            saveUsersData();
             return true;
         }
         return false;
     }
 
-    /**
-     * Busca juegos en el catálogo que coincidan con el texto ingresado.
-     */
+    // Buscar juegos por coincidencia en el nombre
     public List<Game> searchGames(String query) {
         if (query == null || query.trim().isEmpty()) {
             return Collections.emptyList();
@@ -252,9 +236,7 @@ public class DataService {
         return results;
     }
 
-    /**
-     * Elimina un juego favorito de un usuario y reconstruye los clusters del Union-Find.
-     */
+    // Eliminar un juego favorito de un usuario y actualizar clusters
     public synchronized boolean removeLikedGameFromUser(String username, int gameId) {
         User user = getUserByUsername(username);
         if (user == null || user.getLikedGames() == null) {
@@ -265,23 +247,20 @@ public class DataService {
         if (liked.contains(gameId)) {
             liked.remove(Integer.valueOf(gameId));
             user.setLikedGames(liked);
-            // Reconstruir los clusters en memoria con los nuevos gustos
             buildClusters();
-            saveUsersData(); // Guardar cambios en el JSON
+            saveUsersData();
             return true;
         }
         return false;
     }
 
-    /**
-     * Guarda la lista de usuarios con sus juegos favoritos en los archivos JSON.
-     */
+    // Guardar cambios de usuarios en los archivos users.json
     private synchronized void saveUsersData() {
         try {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             String jsonString = gson.toJson(users);
             
-            // 1. Guardar en target/classes/users.json (para la sesión actual de Jetty)
+            // Guardar en la carpeta de compilacion (target/classes)
             URL resourceUrl = getClass().getClassLoader().getResource("users.json");
             if (resourceUrl != null) {
                 File targetFile = new File(resourceUrl.toURI());
@@ -290,10 +269,9 @@ public class DataService {
                 }
             }
             
-            // 2. Guardar en src/main/resources/users.json (para persistencia permanente en el código fuente)
+            // Guardar en la carpeta de fuentes (src/main/resources)
             if (resourceUrl != null) {
                 File targetFile = new File(resourceUrl.toURI());
-                // Subir target/classes/users.json -> target/classes -> target -> raíz
                 File projectRoot = targetFile.getParentFile().getParentFile().getParentFile();
                 File sourceFile = new File(projectRoot, "src/main/resources/users.json");
                 if (sourceFile.exists()) {

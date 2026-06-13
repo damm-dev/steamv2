@@ -28,7 +28,7 @@ El proyecto está diseñado bajo el patrón de arquitectura clásica MVC:
       la biblioteca del usuario, las sugerencias generadas y la representación visual
       de los clusters en tiempo real.
     - styles.css: Archivo de estilos encargado del aspecto visual y de las
-      transiciones y animaciones fluidas (Aesthetic Premium).
+      transiciones y animaciones fluidas.
 
 * CONTROLADOR (C):
   - Actúa como intermediario entre la Vista y el Modelo. Recibe las peticiones,

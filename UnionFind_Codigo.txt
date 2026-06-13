@@ -1,13 +1,24 @@
-package com.steamv2.model;
+/**
+ * Estructura de Datos: Union-Find (Disjoint Set Union - DSU)
+ * 
+ * Implementación en Java utilizando genéricos para admitir cualquier tipo de datos.
+ * Incluye optimizaciones de Compresión de Caminos (Path Compression) y Unión por Rango (Union by Rank).
+ */
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class UnionFind<T> {
 
+    // Mapea cada elemento a su representante (padre)
     private final Map<T, T> parent = new HashMap<>();
+    
+    // Mapea cada representante a su rango (altura aproximada del árbol)
     private final Map<T, Integer> rank = new HashMap<>();
 
+    /**
+     * Crea un nuevo conjunto disjunto para el elemento especificado si no existe previamente.
+     */
     public void makeSet(T element) {
         if (!parent.containsKey(element)) {
             parent.put(element, element);
@@ -15,6 +26,10 @@ public class UnionFind<T> {
         }
     }
 
+    /**
+     * Encuentra y retorna el representante del conjunto al que pertenece el elemento.
+     * Aplica Compresión de Caminos para optimizar futuras búsquedas.
+     */
     public T find(T element) {
         if (!parent.containsKey(element)) {
             return null;
@@ -25,11 +40,17 @@ public class UnionFind<T> {
             return element;
         }
    
+        // Compresión de caminos: asignar la raíz directamente como padre
         T root = find(p);
         parent.put(element, root);
         return root;
     }
 
+    /**
+     * Une los conjuntos de los dos elementos. Retorna true si se realizó la unión, 
+     * o false si ya pertenecían al mismo conjunto o si alguno no existe.
+     * Aplica Unión por Rango para mantener los árboles balanceados.
+     */
     public boolean union(T element1, T element2) {
         T root1 = find(element1);
         T root2 = find(element2);
@@ -41,6 +62,7 @@ public class UnionFind<T> {
         int rank1 = rank.get(root1);
         int rank2 = rank.get(root2);
 
+        // Unión por rango (el árbol de menor rango se cuelga del de mayor rango)
         if (rank1 < rank2) {
             parent.put(root1, root2);
         } else if (rank1 > rank2) {
@@ -53,13 +75,12 @@ public class UnionFind<T> {
         return true;
     }
 
+    /**
+     * Comprueba si dos elementos pertenecen al mismo conjunto (están conectados).
+     */
     public boolean connected(T element1, T element2) {
         T root1 = find(element1);
         T root2 = find(element2);
         return root1 != null && root1.equals(root2);
-    }
-
-    public Map<T, T> getParentMap() {
-        return parent;
     }
 }

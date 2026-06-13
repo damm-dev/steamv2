@@ -18,10 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Servlet de Recomendación de Videojuegos.
- * 
- * Actúa como el Controlador (C de MVC). Procesa las peticiones, se comunica con
- * el DataService (que a su vez utiliza UnionFind) y redirige a la vista JSP.
+ * Controlador para la recomendación de juegos.
  */
 @WebServlet(name = "RecommendationServlet", urlPatterns = {"/recommendations"})
 public class RecommendationServlet extends HttpServlet {
@@ -32,15 +29,12 @@ public class RecommendationServlet extends HttpServlet {
         
         DataService dataService = DataService.getInstance();
         
-        // 1. Obtener la sesión y ver si hay un usuario logueado
         HttpSession session = request.getSession();
         String loggedUser = (String) session.getAttribute("loggedUser");
         
-        // 2. Pasar la lista de todos los usuarios para el formulario de login/interfaz
         request.setAttribute("allUsers", dataService.getUsers());
         request.setAttribute("allGames", dataService.getGames());
         
-        // 3. Pasar los grupos/clusters actuales del Union-Find para visualizarlos en pantalla
         Map<String, List<String>> groups = dataService.getGroups();
         request.setAttribute("unionFindGroups", groups);
         request.setAttribute("unionFindParents", dataService.getUnionFind().getParentMap());
@@ -49,11 +43,9 @@ public class RecommendationServlet extends HttpServlet {
         List<Game> recommendations = null;
 
         if (loggedUser != null && !loggedUser.trim().isEmpty()) {
-            // Usuario está logueado, cargar sus datos reales
             library = dataService.getUserLibrary(loggedUser);
             recommendations = dataService.getRecommendations(loggedUser);
             
-            // Buscar si se ingresó un término de búsqueda en la Navbar
             String searchQuery = request.getParameter("searchQuery");
             if (searchQuery != null && !searchQuery.trim().isEmpty()) {
                 List<Game> searchResults = dataService.searchGames(searchQuery);
@@ -66,12 +58,11 @@ public class RecommendationServlet extends HttpServlet {
             request.setAttribute("recommendations", recommendations);
             request.setAttribute("javaStatus", "Simulación activa. Datos procesados dinámicamente con Union-Find.");
         } else {
-            // No hay usuario logueado
             request.setAttribute("username", null);
             request.setAttribute("javaStatus", "Servidor listo. Esperando inicio de sesión.");
         }
 
-        // Si se solicita respuesta JSON para llamadas asíncronas (AJAX)
+        // Respuesta en formato JSON para AJAX
         if ("json".equals(request.getParameter("format")) || (request.getHeader("Accept") != null && request.getHeader("Accept").contains("application/json"))) {
             response.setContentType("application/json;charset=UTF-8");
             Map<String, Object> data = new HashMap<>();
@@ -104,7 +95,6 @@ public class RecommendationServlet extends HttpServlet {
             return;
         }
 
-        // 4. Redirigir (forward) la petición a la página JSP para mostrar la interfaz
         request.getRequestDispatcher("/index.jsp").forward(request, response);
     }
 
@@ -116,10 +106,8 @@ public class RecommendationServlet extends HttpServlet {
         HttpSession session = request.getSession();
 
         if ("logout".equals(action)) {
-            // Cerrar sesión
             session.removeAttribute("loggedUser");
         } else if ("addGame".equals(action)) {
-            // Agregar juego a la biblioteca del usuario
             String loggedUser = (String) session.getAttribute("loggedUser");
             String gameIdStr = request.getParameter("gameId");
             if (loggedUser != null && gameIdStr != null) {
@@ -131,7 +119,6 @@ public class RecommendationServlet extends HttpServlet {
                 }
             }
         } else if ("removeGame".equals(action)) {
-            // Eliminar juego de la biblioteca del usuario
             String loggedUser = (String) session.getAttribute("loggedUser");
             String gameIdStr = request.getParameter("gameId");
             if (loggedUser != null && gameIdStr != null) {
@@ -143,14 +130,13 @@ public class RecommendationServlet extends HttpServlet {
                 }
             }
         } else {
-            // Intentar iniciar sesión
             String user = request.getParameter("username");
             if (user != null && !user.trim().isEmpty()) {
                 session.setAttribute("loggedUser", user);
             }
         }
         
-        // Si se solicita respuesta JSON para llamadas asíncronas (AJAX)
+        // Respuesta en formato JSON para AJAX
         if ("json".equals(request.getParameter("format")) || (request.getHeader("Accept") != null && request.getHeader("Accept").contains("application/json"))) {
             response.setContentType("application/json;charset=UTF-8");
             DataService dataService = DataService.getInstance();

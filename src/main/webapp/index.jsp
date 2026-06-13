@@ -346,7 +346,7 @@
     <footer class="steam-footer">
         <div class="container footer-content">
             <p>© 2026 Steam Berde. #freeJogoooos</p>
-            <p class="footer-links"><a href="#">Privacidad</a> | <a href="#">Términos Legales</a> | <a href="#">Acuerdo de Suscriptor</a></p>
+            <p class="footer-links"><a href="#">Privacidad</a> | <a href="#">Términos Legales</a> | <a href="#">Reportar Cuenta robada</a></p>
         </div>
     </footer>
 

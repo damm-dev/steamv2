@@ -2,7 +2,9 @@
   {
     "username": "Eduardo",
     "password": "password123",
-    "likedGames": []
+    "likedGames": [
+      2
+    ]
   },
   {
     "username": "Ashley",
@@ -14,41 +16,35 @@
   {
     "username": "Diana",
     "password": "password789",
-    "likedGames": [
-      7,
-      6,
-      4,
-      14,
-      2
-    ]
+    "likedGames": []
   },
   {
     "username": "Anthony",
     "password": "passwordabc",
-    "likedGames": []
+    "likedGames": [
+      8
+    ]
   },
   {
     "username": "Diego",
     "password": "passwordxyz",
-    "likedGames": [
-      10
-    ]
+    "likedGames": []
   },
   {
     "username": "Michelle",
     "password": "gamerpassword",
     "likedGames": [
-      4,
-      7,
-      14
+      9,
+      8,
+      2
     ]
   },
   {
     "username": "Eduarxx05",
     "password": "runfastpassword",
     "likedGames": [
-      15,
-      9
+      11,
+      2
     ]
   }
 ]
